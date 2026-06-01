@@ -1,0 +1,44 @@
+### Health-Check
+GET http://localhost:3000/api/health
+
+### Alle Aufgaben
+GET http://localhost:3000/api/tasks
+
+### Nur offene Aufgaben
+GET http://localhost:3000/api/tasks?done=false
+
+### Suche
+GET http://localhost:3000/api/tasks/search?q=API
+
+### Einzelne Aufgabe
+GET http://localhost:3000/api/tasks/1
+
+### Neue Aufgabe
+POST http://localhost:3000/api/tasks
+Content-Type: application/json
+
+{
+  "title": "Neue Aufgabe",
+  "priority": "high"
+}
+
+### Aufgabe aktualisieren
+PUT http://localhost:3000/api/tasks/1
+Content-Type: application/json
+
+{
+  "title": "Geänderter Titel",
+  "done": true
+}
+
+### done umschalten
+PATCH http://localhost:3000/api/tasks/1/toggle
+
+### Aufgabe löschen
+DELETE http://localhost:3000/api/tasks/3
+
+### Statistik
+GET http://localhost:3000/api/stats
+
+### Nach Priorität gruppiert
+GET http://localhost:3000/api/priorities

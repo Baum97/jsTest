@@ -1,0 +1,22 @@
+{
+  "name": "jstest-api",
+  "version": "1.0.0",
+  "description": "Übungs-API mit ~10 Routen zum Lernen und Verbessern von JavaScript-Skills",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test"
+  },
+  "keywords": [
+    "express",
+    "api",
+    "learning"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
