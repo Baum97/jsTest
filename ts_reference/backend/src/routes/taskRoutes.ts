@@ -1,11 +1,9 @@
 import { Router } from "express";
-import { taskController } from "../controllers/taskController.js";
-import { asyncHandler } from "../utils/asyncHandler.js";
+import { taskController } from "../controllers/taskController.ts";
+import { asyncHandler } from "../utils/asyncHandler.ts";
 
 export const taskRoutes = Router();
 
-// asyncHandler() umschließt jeden Controller, damit geworfene Fehler
-// automatisch beim zentralen Error-Handler landen.
 taskRoutes.get("/", asyncHandler(taskController.list));
 taskRoutes.post("/", asyncHandler(taskController.create));
 taskRoutes.get("/:id", asyncHandler(taskController.getById));

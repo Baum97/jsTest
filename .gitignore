@@ -1,3 +1,8 @@
 node_modules/
 *.log
 .env
+dist/
+
+# Laufzeit-Datenbank (wird beim Start neu erzeugt)
+js/data/tasks.json
+ts_reference/backend/data/tasks.json

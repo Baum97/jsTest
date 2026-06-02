@@ -1,6 +1,11 @@
 // Zentrale Konfiguration aus Umgebungsvariablen.
-// An einer Stelle gebündelt, statt process.env quer durch den Code zu streuen.
-export const config = {
+export interface Config {
+  port: number;
+  nodeEnv: string;
+  corsOrigin: string;
+}
+
+export const config: Config = {
   port: Number(process.env.PORT) || 3001,
   nodeEnv: process.env.NODE_ENV || "development",
   corsOrigin: process.env.CORS_ORIGIN || "*",

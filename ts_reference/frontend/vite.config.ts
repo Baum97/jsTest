@@ -1,8 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
-// Dev-Server proxyt /api an das Backend (Port 3001).
-// Dadurch braucht das Frontend keine absolute URL und es gibt keine CORS-Probleme.
+// Dev-Server proxyt /api ans Backend (Port 3001) -> keine CORS-Probleme.
 export default defineConfig({
   plugins: [react()],
   server: {

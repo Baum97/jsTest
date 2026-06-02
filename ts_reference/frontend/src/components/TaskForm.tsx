@@ -1,15 +1,18 @@
-import { useState } from "react";
+import { useState, type FormEvent, type ChangeEvent } from "react";
+import type { Priority } from "../types";
+
+interface TaskFormProps {
+  onAdd: (task: { title: string; priority: Priority }) => Promise<void>;
+}
 
 // Kontrolliertes Formular zum Anlegen einer Aufgabe.
-// Bekommt onAdd als Prop (Inversion of Control) – die Komponente weiß nicht,
-// WAS mit der Aufgabe passiert, nur dass sie gemeldet wird.
-export function TaskForm({ onAdd }) {
+export function TaskForm({ onAdd }: TaskFormProps) {
   const [title, setTitle] = useState("");
-  const [priority, setPriority] = useState("medium");
+  const [priority, setPriority] = useState<Priority>("medium");
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
-  async function handleSubmit(event) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!title.trim()) return;
 
@@ -17,10 +20,10 @@ export function TaskForm({ onAdd }) {
     setError(null);
     try {
       await onAdd({ title: title.trim(), priority });
-      setTitle(""); // nur bei Erfolg zurücksetzen
+      setTitle("");
       setPriority("medium");
     } catch (err) {
-      setError(err.message);
+      setError((err as Error).message);
     } finally {
       setSubmitting(false);
     }
@@ -32,10 +35,14 @@ export function TaskForm({ onAdd }) {
         type="text"
         placeholder="Neue Aufgabe …"
         value={title}
-        onChange={(e) => setTitle(e.target.value)}
+        onChange={(e: ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
         aria-label="Titel"
       />
-      <select value={priority} onChange={(e) => setPriority(e.target.value)} aria-label="Priorität">
+      <select
+        value={priority}
+        onChange={(e: ChangeEvent<HTMLSelectElement>) => setPriority(e.target.value as Priority)}
+        aria-label="Priorität"
+      >
         <option value="high">Hoch</option>
         <option value="medium">Mittel</option>
         <option value="low">Niedrig</option>

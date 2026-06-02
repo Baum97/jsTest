@@ -8,33 +8,42 @@ let baseUrl;
 
 before(async () => {
   const app = createApp();
-  // Port 0 = Betriebssystem sucht einen freien Port aus
   await new Promise((resolve) => {
     server = app.listen(0, () => {
-      const { port } = server.address();
-      baseUrl = `http://localhost:${port}`;
+      baseUrl = `http://localhost:${server.address().port}`;
       resolve();
     });
   });
 });
 
-after(() => {
-  server.close();
-});
+after(() => server.close());
 
-// kleine Helfer-Funktion, damit die Tests kurz bleiben
 async function api(path, options) {
   const res = await fetch(baseUrl + path, options);
   const body = res.status === 204 ? null : await res.json();
   return { status: res.status, body };
 }
 
+const json = (method, data) => ({
+  method,
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(data),
+});
+
 // --- Die Tests -----------------------------------------------------------
 describe("GET /api/tasks", () => {
-  test("gibt eine Liste zurück (Status 200)", async () => {
+  test("liefert ein paginiertes Objekt (data + total)", async () => {
     const { status, body } = await api("/api/tasks");
     assert.equal(status, 200);
-    assert.ok(Array.isArray(body));
+    assert.ok(Array.isArray(body.data));
+    assert.equal(typeof body.total, "number");
+    assert.equal(typeof body.totalPages, "number");
+  });
+
+  test("respektiert ?limit", async () => {
+    const { body } = await api("/api/tasks?limit=1");
+    assert.equal(body.data.length, 1);
+    assert.equal(body.limit, 1);
   });
 });
 
@@ -49,28 +58,42 @@ describe("GET /api/tasks/:id", () => {
     const { status } = await api("/api/tasks/99999");
     assert.equal(status, 404);
   });
+
+  test("liefert 400 bei ungültiger ID (Aufgabe 2)", async () => {
+    const { status } = await api("/api/tasks/abc");
+    assert.equal(status, 400);
+  });
 });
 
 describe("POST /api/tasks", () => {
   test("legt eine Aufgabe an (Status 201)", async () => {
-    const { status, body } = await api("/api/tasks", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: "Test-Aufgabe" }),
-    });
+    const { status, body } = await api("/api/tasks", json("POST", { title: "Test-Aufgabe" }));
     assert.equal(status, 201);
     assert.equal(body.title, "Test-Aufgabe");
-    assert.ok(body.id, "sollte eine ID bekommen");
+    assert.ok(body.id);
   });
 
-  // Dieser Test erwartet Validierung (Aufgabe 1) – er schlägt fehl,
-  // bis du die Validierung eingebaut hast. Genau so soll TDD funktionieren.
-  test("lehnt eine Aufgabe ohne title ab (Status 400)", async () => {
-    const { status } = await api("/api/tasks", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({}),
-    });
+  test("lehnt fehlenden title mit 400 ab (Aufgabe 1)", async () => {
+    const { status } = await api("/api/tasks", json("POST", {}));
     assert.equal(status, 400);
+  });
+});
+
+describe("PATCH /api/tasks/:id", () => {
+  test("übernimmt nur erlaubte Felder (Aufgabe 6)", async () => {
+    const created = await api("/api/tasks", json("POST", { title: "Patch-Ziel" }));
+    const id = created.body.id;
+    const { status, body } = await api(`/api/tasks/${id}`, json("PATCH", { done: true, hacked: true }));
+    assert.equal(status, 200);
+    assert.equal(body.done, true);
+    assert.equal(body.hacked, undefined);
+  });
+});
+
+describe("GET /api/tasks/search", () => {
+  test("findet case-insensitive (Aufgabe 4)", async () => {
+    const { status, body } = await api("/api/tasks/search?q=EXPRESS");
+    assert.equal(status, 200);
+    assert.ok(body.some((t) => t.title.includes("Express")));
   });
 });

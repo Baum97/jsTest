@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { metaController } from "../controllers/metaController.js";
-import { asyncHandler } from "../utils/asyncHandler.js";
+import { metaController } from "../controllers/metaController.ts";
+import { asyncHandler } from "../utils/asyncHandler.ts";
 
 export const metaRoutes = Router();
 

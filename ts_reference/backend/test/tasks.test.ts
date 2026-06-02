@@ -1,15 +1,18 @@
 import { test, before, after, describe } from "node:test";
 import assert from "node:assert/strict";
-import { createApp } from "../src/app.js";
+import type { Server } from "node:http";
+import { createApp } from "../src/app.ts";
 
-let server;
-let baseUrl;
+let server: Server;
+let baseUrl: string;
 
 before(async () => {
   const app = createApp();
-  await new Promise((resolve) => {
+  await new Promise<void>((resolve) => {
     server = app.listen(0, () => {
-      baseUrl = `http://localhost:${server.address().port}`;
+      const address = server.address();
+      const port = typeof address === "object" && address ? address.port : 0;
+      baseUrl = `http://localhost:${port}`;
       resolve();
     });
   });
@@ -17,13 +20,14 @@ before(async () => {
 
 after(() => server.close());
 
-const api = async (path, options) => {
+const api = async (path: string, options?: RequestInit) => {
   const res = await fetch(baseUrl + path, options);
-  const body = res.status === 204 ? null : await res.json();
+  // res.json() liefert hier unknown -> für die Tests bewusst als any behandeln.
+  const body: any = res.status === 204 ? null : await res.json();
   return { status: res.status, body };
 };
 
-const json = (method, data) => ({
+const json = (method: string, data: unknown): RequestInit => ({
   method,
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify(data),

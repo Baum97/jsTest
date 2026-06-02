@@ -1,6 +1,11 @@
-// Schlankes Request-Logging. In echten Projekten würde man hier
-// z. B. pino oder morgan einsetzen – bewusst dependency-frei gehalten.
-export function requestLogger(req, res, next) {
+import type { Request, Response, NextFunction } from "express";
+
+// Schlankes Request-Logging.
+export function requestLogger(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): void {
   const start = process.hrtime.bigint();
   res.on("finish", () => {
     const ms = Number(process.hrtime.bigint() - start) / 1e6;
